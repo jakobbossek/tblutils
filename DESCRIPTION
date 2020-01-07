@@ -1,5 +1,5 @@
 Package: tblutils
-Title: Helpers to pimp scientific tables.
+Title: Helpers to pimp scientific tables
 Version: 1.0.0.9000
 Authors@R: person("Jakob", "Bossek", email = "j.bossek@gmail.com", role = c("aut", "cre"))
 Description: A collection of utility functions to pimp scientific tables.

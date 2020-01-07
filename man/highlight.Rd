@@ -4,7 +4,8 @@
 \alias{highlight}
 \title{Highlight cells in data frame}
 \usage{
-highlight(x, by, which, order.fun = base::order, highlight.fun, ...)
+highlight(x, by, which, order.fun = base::order, highlight.fun,
+  order.fun.args = list(), ...)
 }
 \arguments{
 \item{x}{[\code{data.frame}]\cr
@@ -29,6 +30,9 @@ Semantic: the lower an ordering value the better.}
 .  a vector of numeric values \code{values} and a vector of corresponding order
   values \code{ordering}.
   See \code{\link{baseLaTeXHighlighter}} for a flexible highlighter function.}
+
+\item{order.fun.args}{[\code{list}]\cr
+List of arguments passed down to \code{order.fun}.}
 
 \item{...}{[any]\cr
 Further parameters passed down to \code{highlight.fun}.}
