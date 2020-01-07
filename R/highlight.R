@@ -53,7 +53,7 @@ highlight = function(x, by, which, order.fun = base::order, highlight.fun, order
     of.args = BBmisc::insert(list(x = which.values), order.fun.args)
     which.order = do.call(order.fun, of.args)
     # eventually based on ordering apply highlighting
-    part[[which]] = highlight.fun(part[[which]], which.order, ...)
+    part[[which]] = highlight.fun(which.values, which.order, ...)
     return(part)
   })
 
@@ -98,7 +98,8 @@ baseLaTeXHighlighter = function(values, ordering, n.highlight = 1,
   col.values = rep(bg.saturation.max, n.values)
 
   # ordering - 1 achieves no desaturation for best value
-  desaturation.factor = (bg.saturation.max - bg.saturation.min) / n.highlight
+  desaturation.factor = ceiling((bg.saturation.max - bg.saturation.min) / n.highlight)
+  # FIXME: magic number 20
   col.values = col.values - (ordering - 1L) * 20
   if (n.highlight > n.values)
     n.highlight = n.values
