@@ -1,0 +1,19 @@
+Package: tblutils
+Title: Helpers to pimp scientific tables.
+Version: 1.0.0.9000
+Authors@R: person("Jakob", "Bossek", email = "j.bossek@gmail.com", role = c("aut", "cre"))
+Description: A collection of utility functions to pimp scientific tables.
+Depends:
+  R (>= 3.1.0)
+Imports:
+  BBmisc,
+  checkmate,
+  reshape2
+Suggests:
+  testthat
+License: GPL-2 | file LICENSE
+BugReports: https://github.com/jakobbossek/tblutils/issues
+Encoding: UTF-8
+LazyData: true
+ByteCompile: true
+RoxygenNote: 6.1.1
