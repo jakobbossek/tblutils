@@ -34,6 +34,12 @@ widen = function(x, split.col, widen.cols) {
     idx = (x[[split.col]] == split.value)
     # select part which shall be widened
     x.part = x[idx, , drop = FALSE]
+    if (i == 1) {
+      # assure potential reordering given by widen.cols
+      ids.nonwiden = setdiff(colnames(x.part), widen.cols)
+      x.common = x.part[, ids.nonwiden, drop = FALSE]
+      x.part = cbind(x.common, x.part[, widen.cols, drop = FALSE])
+    }
     if (i >= 2) {
       x.part = x.part[, widen.cols, drop = FALSE]
       colnames(x.part) = paste0(widen.cols, i)
