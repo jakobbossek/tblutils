@@ -28,7 +28,7 @@
 #'   Further parameters passed down to \code{highlight.fun}.
 #' @return [\code{data.frame}]
 #' @export
-highlight = function(x, by, which, order.fun = base::order, highlight.fun, order.fun.args = list(), ...) {
+highlight = function(x, by, which, order.fun = base::rank, highlight.fun, order.fun.args = list(), ...) {
   # sanity checks
   checkmate::assertDataFrame(x)
   checkmate::assertCharacter(by)
