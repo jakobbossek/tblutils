@@ -32,34 +32,51 @@ highlight = function(x, by, which, order.fun = base::rank, highlight.fun, order.
   # sanity checks
   checkmate::assertDataFrame(x)
   checkmate::assertCharacter(by)
-  checkmate::assertFunction(order.fun)
+
+  rankinv = function(x) {
+    tmp = rank(x)
+    max(tmp) - tmp + 1L
+  }
+
+  if (is.character(order.fun)) {
+    #checkmate::assertChoice(order.fun, choices = c("min", "max"))
+    order.fun = c("min" = base::rank, "max" = rankinv)[order.fun]
+  }
+
+  if (length(which) > 1 & length(order.fun) == 1L)
+    BBmisc::stopf("[highlight] If you want to highlight several columns you need to pass several order.funs.")
+
+  #checkmate::assertFunction(order.fun)
   checkmate::assertFunction(highlight.fun)
 
   # split data frame (using dplyr here is a pain in the a**, since
   # we need to pass down variables)
-  splits = lapply(by, function(b) x[[b]])
-  x.parts = split(x, splits)
-  # some combinations of by-values may be empty. Get rid of these!
-  idx.nonempty = which(sapply(x.parts, nrow) != 0)
-  x.parts = x.parts[idx.nonempty]
+  for (i in 1:length(which)) {
+    BBmisc::catf("Highlighting columns: %s", which[i])
+    which2 = which[i]
+    order.fun2 = order.fun[[i]]
 
-  # now do the highlight magic
-  x.parts = lapply(x.parts, function(part) {
-    #FIXME: rename
-    #print(part)
-    # get values to highlight
-    which.values = part[[which]]
-    # determine ordering
-    of.args = BBmisc::insert(list(x = which.values), order.fun.args)
-    which.order = do.call(order.fun, of.args)
-    # eventually based on ordering apply highlighting
-    part[[which]] = highlight.fun(which.values, which.order, ...)
-    return(part)
-  })
+    splits = lapply(by, function(b) x[[b]])
+    x.parts = split(x, splits)
+    # some combinations of by-values may be empty. Get rid of these!
+    idx.nonempty = which(sapply(x.parts, nrow) != 0)
+    x.parts = x.parts[idx.nonempty]
 
-  # bind and return
-  x.parts = do.call(rbind, x.parts)
-  return(x.parts)
+    # now do the highlight magic
+    x.parts = lapply(x.parts, function(part) {
+      # get values to highlight
+      which.values = part[[which2]]
+      # determine ordering
+      which.order = order.fun2(x = which.values)
+      # eventually based on ordering apply highlighting
+      part[[which2]] = highlight.fun(which.values, which.order, ...)
+      return(part)
+    })
+
+    # bind and return
+    x = do.call(rbind, x.parts)
+  }
+  return(x)
 }
 
 

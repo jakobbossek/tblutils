@@ -22,6 +22,19 @@
 #' @param test.fun [\code{function(x, y, ...)}]\cr
 #'   Statistical test function.
 #'   Default is \code{wilcox.test}.
+#' @param show.positive.only [\code{logical(1)}]\cr
+#'   Show entries for rejected zero hypothesis only?
+#'   Default is \code{FALSE}.
+#' @param show.numbers.only [\code{logical(1)}]\cr
+#'   Show algorithm number only, i.e., without plus/minus indicator for test
+#'   result? The value \code{TRUE} is only meaningful
+#'   if \code{show.positive.only = TRUE}.
+#'   Default is \code{FALSE}.
+#' @param colors [\code{character}]\cr
+#'   Vector of colors used to highlight test results. If one color is passed it
+#'   is simply repeated k times where k is the number of algorithms. Otherwise
+#'   the k-th color is used for latex output if the zero hypothesis is rejected
+#'   for this algorithm.
 #' @param ... [any]\cr
 #'   Further parameters passed down to \code{test.fun}.
 #'   E.g., \code{alternative = "less"}.
@@ -29,16 +42,22 @@
 #' @export
 test.pairwise = function(x,
   by, split.col, value.col, testresult.col,
+  show.positive.only, show.numbers.only,
+  colors = "black",
   alpha = 0.05, test.fun = stats::wilcox.test, ...) {
   checkmate::assertDataFrame(x)
   checkmate::assertCharacter(by, min.len = 1L, any.missing = FALSE, all.missing = FALSE)
   checkmate::assertString(split.col)
   checkmate::assertString(value.col)
   checkmate::assertString(testresult.col)
+  checkmate::assertLogical(show.positive.only)
+  checkmate::assertLogical(show.numbers.only)
   checkmate::assertNumber(alpha, lower = 0.0000001, upper = 0.9999999)
   checkmate::assertFunction(test.fun)
 
-  #FIXME: sanity checks
+  if (!show.positive.only & show.numbers.only) {
+    BBmisc::stopf("[test.pairwise] show.positive.only = FALSE and show.numbers.only = TRUE does not allow to distinguish test results.")
+  }
 
   # initialize results column
   x[[testresult.col]] = NA_character_
@@ -57,10 +76,19 @@ test.pairwise = function(x,
     part2 = part2[idx.nonempty]
 
     part2.ns = names(part2)
-    for (n1 in part2.ns) {
+    n.part2 = length(part2.ns)
+    if (length(colors) != n.part2) {
+      if (length(colors) == 1)
+        colors = rep(colors, n.part2)
+      else
+        BBmisc::stopf("[test.pairwise] There are %i algorithms, but only %i colors passed.", n.part2, length(colors))
+    }
+    for (i in seq_len(n.part2)) {
+      n1 = part2.ns[i]
       alternatives = c()
       results = c()
-      for (n2 in part2.ns) {
+      for (j in seq_len(n.part2)) {
+        n2 = part2.ns[j]
         if (n1 == n2) {
           next
         }
@@ -70,7 +98,19 @@ test.pairwise = function(x,
         alternatives = c(alternatives, n2)
         results = c(results, test.result$p.value < alpha)
       }
-      alternatives = sprintf("$\\text{%s}^{%s}$", alternatives, ifelse(results, "+", "-"))
+      if (show.numbers.only) {
+        alternatives = sprintf("$\\text{%s}$", alternatives)
+      } else {
+        alternatives = sprintf("$\\text{%s}^{%s}$", alternatives, ifelse(results, "+", "-"))
+      }
+      # assign colors
+      the.colors = colors[-i] # all but color of the first algorithm in this iteration
+      alternatives[results] = sprintf("\\textcolor{%s}{%s}", the.colors[results], alternatives[results])
+
+      # show positive and negative results?
+      if (show.positive.only) {
+        alternatives = alternatives[results]
+      }
       alternatives = BBmisc::collapse(alternatives, sep = ", ")
       part2[[n1]][[testresult.col]] = rep(alternatives, nrow(part2[[n1]]))
     }

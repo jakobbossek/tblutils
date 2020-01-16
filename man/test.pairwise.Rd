@@ -4,8 +4,9 @@
 \alias{test.pairwise}
 \title{Appnds formatted results of pairwise tests to data frame}
 \usage{
-test.pairwise(x, by, split.col, value.col, testresult.col, alpha = 0.05,
-  test.fun = stats::wilcox.test, ...)
+test.pairwise(x, by, split.col, value.col, testresult.col,
+  show.positive.only, show.numbers.only, colors = "black",
+  alpha = 0.05, test.fun = stats::wilcox.test, ...)
 }
 \arguments{
 \item{x}{[\code{data.frame}]\cr
@@ -23,6 +24,22 @@ Single column name with numeric values to undergo statistical tests.}
 
 \item{testresult.col}{[\code{character(1)}]\cr
 Column name of new column where test results should be stored.}
+
+\item{show.positive.only}{[\code{logical(1)}]\cr
+Show entries for rejected zero hypothesis only?
+Default is \code{FALSE}.}
+
+\item{show.numbers.only}{[\code{logical(1)}]\cr
+Show algorithm number only, i.e., without plus/minus indicator for test
+result? The value \code{TRUE} is only meaningful
+if \code{show.positive.only = TRUE}.
+Default is \code{FALSE}.}
+
+\item{colors}{[\code{character}]\cr
+Vector of colors used to highlight test results. If one color is passed it
+is simply repeated k times where k is the number of algorithms. Otherwise
+the k-th color is used for latex output if the zero hypothesis is rejected
+for this algorithm.}
 
 \item{alpha}{[\code{numeric(1)}]\cr
 Significance level.

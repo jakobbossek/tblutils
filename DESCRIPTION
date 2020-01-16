@@ -8,7 +8,8 @@ Depends:
 Imports:
   BBmisc,
   checkmate,
-  reshape2
+  reshape2,
+  brew
 Suggests:
   testthat
 License: GPL-2 | file LICENSE

@@ -4,7 +4,7 @@
 \alias{highlight}
 \title{Highlight cells in data frame}
 \usage{
-highlight(x, by, which, order.fun = base::order, highlight.fun,
+highlight(x, by, which, order.fun = base::rank, highlight.fun,
   order.fun.args = list(), ...)
 }
 \arguments{
