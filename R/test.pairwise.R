@@ -35,6 +35,10 @@
 #'   is simply repeated k times where k is the number of algorithms. Otherwise
 #'   the k-th color is used for latex output if the zero hypothesis is rejected
 #'   for this algorithm.
+#' @param show.intervals [\code{logical(1)}]\cr
+#'   Show results in intervals when possible and not comma-seperated?
+#'   This might lead to narrower columns sometimes.
+#'   Default is \code{FALSE}.
 #' @param ... [any]\cr
 #'   Further parameters passed down to \code{test.fun}.
 #'   E.g., \code{alternative = "less"}.
@@ -42,8 +46,10 @@
 #' @export
 test.pairwise = function(x,
   by, split.col, value.col, testresult.col,
-  show.positive.only, show.numbers.only,
+  show.positive.only = FALSE,
+  show.numbers.only = FALSE,
   colors = "black",
+  show.intervals = FALSE,
   alpha = 0.05, test.fun = stats::wilcox.test, ...) {
   checkmate::assertDataFrame(x)
   checkmate::assertCharacter(by, min.len = 1L, any.missing = FALSE, all.missing = FALSE)
@@ -52,6 +58,7 @@ test.pairwise = function(x,
   checkmate::assertString(testresult.col)
   checkmate::assertLogical(show.positive.only)
   checkmate::assertLogical(show.numbers.only)
+  checkmate::assertLogical(show.intervals)
   checkmate::assertNumber(alpha, lower = 0.0000001, upper = 0.9999999)
   checkmate::assertFunction(test.fun)
 
@@ -98,24 +105,83 @@ test.pairwise = function(x,
         alternatives = c(alternatives, n2)
         results = c(results, test.result$p.value < alpha)
       }
-      if (show.numbers.only) {
-        alternatives = sprintf("$\\text{%s}$", alternatives)
+      if (show.intervals) {
+        altpos = alternatives[results]
+        altneg = alternatives[!results]
+        #print(altpos)
+        #print(altneg)
+        alternatives = ""
+        if (length(altpos) > 0) {
+          alternatives = buildIntervalString(as.integer(altpos))
+          stopifnot(length(alternatives) == 1L)
+          if (!show.numbers.only) {
+            if (nchar(alternatives) > 1L) {
+              alternatives = sprintf("$[\\text{%s}]^{+}$", alternatives)
+            } else {
+              alternatives = sprintf("$\\text{%s}^{+}$", alternatives)
+            }
+          }
+        }
+        if (length(altneg) > 0 & !show.positive.only) {
+          interval.string.neg = buildIntervalString(as.integer(altneg))
+          if (!show.numbers.only) {
+            if (nchar(interval.string.neg) > 1L) {
+              interval.string.neg = sprintf("$[\\text{%s}]^{+}$", interval.string.neg)
+            } else {
+              interval.string.neg = sprintf("$\\text{%s}^{+}$", interval.string.neg)
+            }
+          }
+          alternatives = sprintf("%s%s%s", interval.string.neg, if(alternatives == "") "" else ",", alternatives)
+        }
+        #print(alternatives)
+        #stop()
       } else {
-        alternatives = sprintf("$\\text{%s}^{%s}$", alternatives, ifelse(results, "+", "-"))
-      }
-      # assign colors
-      the.colors = colors[-i] # all but color of the first algorithm in this iteration
-      alternatives[results] = sprintf("\\textcolor{%s}{%s}", the.colors[results], alternatives[results])
+        if (show.numbers.only) {
+          alternatives = sprintf("$\\text{%s}$", alternatives)
+        } else {
+          alternatives = sprintf("$\\text{%s}^{%s}$", alternatives, ifelse(results, "+", "-"))
+        }
+        # assign colors
+        the.colors = colors[-i] # all but color of the first algorithm in this iteration
+        alternatives[results] = sprintf("\\textcolor{%s}{%s}", the.colors[results], alternatives[results])
 
-      # show positive and negative results?
-      if (show.positive.only) {
-        alternatives = alternatives[results]
+        # show positive and negative results?
+        if (show.positive.only) {
+          alternatives = alternatives[results]
+        }
+        alternatives = BBmisc::collapse(alternatives, sep = ", ")
       }
-      alternatives = BBmisc::collapse(alternatives, sep = ", ")
       part2[[n1]][[testresult.col]] = rep(alternatives, nrow(part2[[n1]]))
     }
     do.call(rbind, part2)
   })
   x.parts = do.call(rbind, x.parts)
   return(x.parts)
+}
+
+buildIntervalString = function(x) {
+  #x = sort(x)
+  st = ""
+  last.pos = -100
+  inInterval = FALSE
+  for (i in 1:length(x)) {
+    curr.pos = x[i]
+    if (last.pos < 0) {
+      st = paste0(st, curr.pos)
+    } else if(((curr.pos - 1L) == last.pos) & !inInterval) {
+      inInterval = TRUE
+      st = paste0(st, "-") # interval begins
+    } else if(((curr.pos - 1L) == last.pos) & inInterval) {
+    } else if (inInterval & ((curr.pos - 1L) != last.pos)) {
+      inInterval = FALSE
+      st = paste0(st, last.pos, ",", curr.pos)
+    } else {
+      st = paste0(st, ",", curr.pos)
+    }
+    last.pos = curr.pos
+  }
+  if (inInterval) {
+    st = paste0(st, last.pos)
+  }
+  return(st)
 }
