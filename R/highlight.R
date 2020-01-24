@@ -13,6 +13,7 @@
 #'   Column name of the column which contains the values we want
 #'   to highlight.
 #' @param order.fun [\code{function(x, ...)}]\cr
+#' #FIXME: either function or character(1)
 #'   Function used to determine numeric ordering of the values \code{x[[which]]}.
 #'   This function needs to return an integer vector of the same length
 #'   as the input vector.
@@ -22,13 +23,15 @@
 #'.  a vector of numeric values \code{values} and a vector of corresponding order
 #'   values \code{ordering}.
 #'   See \code{\link{baseLaTeXHighlighter}} for a flexible highlighter function.
-#' @param order.fun.args [\code{list}]\cr
-#'   List of arguments passed down to \code{order.fun}.
 #' @param ... [any]\cr
 #'   Further parameters passed down to \code{highlight.fun}.
 #' @return [\code{data.frame}]
 #' @export
-highlight = function(x, by, which, order.fun = base::rank, highlight.fun, order.fun.args = list(), ...) {
+highlight = function(x,
+  by, which,
+  order.fun = "min",
+  highlight.fun = tblutils::baseLaTeXHighlighter,
+  ...) {
   # sanity checks
   checkmate::assertDataFrame(x)
   checkmate::assertCharacter(by)
