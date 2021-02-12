@@ -5,8 +5,6 @@ texify = function(x,
   do.pairwise.test = TRUE,
   testresult.col = "testresult",
   alpha = 0.05,
-  split.col.nice.names,
-  widen.col.nice.names,
   highlighter.pars = NULL
   ) {
   checkmate::assert_data_frame(x)
@@ -47,20 +45,38 @@ texify = function(x,
       ungroup()
 
     # highlight
-    x[[i]] = highlight(x[[i]], by = split.cols, which = "mean.diversity", order.fun = "max", bg.color = "gray", bg.saturation.max = 15)
+    x[[i]] = highlight(x[[i]], by = split.cols, which = summ_names[1L], order.fun = "max", bg.color = "gray", bg.saturation.max = 15)
 
     x[[i]] = dplyr::arrange_(x[[i]], .dots = as.list(split.cols))
+
+    x[[i]] = widen(x[[i]],
+      split.col = widen.col,
+      widen.cols = summ_names)
+    x[[i]][[widen.col]] = NULL
   }
 
   xxx <<- x[[1]]
 
+  return(x)
+}
 
-  tbl = widen(x[[1]],
-    split.col = widen.col,
-    widen.cols = c("mean.diversity", "sd.diversity", "stat.diversity"))
-  tbl[[widen.col]] = NULL
+to_latex_kable = function(tbl, param.col.names, measure.col.names, reps = 1L, algo.names, caption = "Placeholder", basics.only = FALSE) {
+  nr = nrow(tbl)
+  if (nr > 50)
+    re::catf("Number of rows is quite high: %i.", nr)
 
-  return(tbl)
+  n.params = length(param.col.names)
+  n.algos = length(algo.names)
+  n.measures = length(measure.col.names)
+  cns = c(param.col.names, rep(measure.col.names, n.algos * reps))
+  algo.names = rep(paste0(algo.names, " (", seq_len(n.algos), ")"), reps)
+  header1 = c(rep(" ", n.params), setNames(rep(n.measures, n.algos * reps), algo.names))
+  #cns = c("\\textbf{Type}", "$n$", "$\\mu$", "$\\alpha$", rep(c("\\textbf{mean}", "\\textbf{std}", "\\textbf{stat}"), 2))
+  align = rep("r", length(cns))
+  ktbl = kableExtra::kable(tbl, "latex", col.names = cns, align = align, longtable = FALSE, escape = FALSE, booktabs = TRUE, caption = caption) %>%
+    kable_styling() %>%
+    add_header_above(header1, bold = TRUE)
+  return(ktbl)
 }
 
 do_pairwise_test = function(x, by, split.col, test.col, testresult.col, alpha) {
@@ -75,11 +91,11 @@ do_pairwise_test = function(x, by, split.col, test.col, testresult.col, alpha) {
     x.part$xxx = as.integer(x.part[[split.col]])
     n = re::nunique(x.part$xxx)
     y.parts = get_parts(x.part, by = split.col)
-    print(y.parts)
+    #print(y.parts)
     y.parts.names = names(y.parts)
     m = length(y.parts.names)
-    alternatives = c()
     for (n1 in seq_len(m)) {
+      alternatives = c()
       for (n2 in seq_len(m)) {
         if (n1 == n2)
           next

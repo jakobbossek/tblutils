@@ -10,14 +10,14 @@ preview = function(...) {
     brew.file = "/Users/bossek/repos/software/r/tblutils/data-raw/report.brew"
   }
   BBmisc::catf("Template file path is '%s'.", brew.file)
-  tex.file = tempfile(fileext = ".tex")
-  brew::brew(brew.file, tex.file)
   dir.create("temptexoutput")
+  tex.file = tempfile(fileext = ".tex", tmpdir = "temptexoutput")
+  brew::brew(brew.file, tex.file)
   #file.copy(tex.file, paste0("temptexoutput/", basename(tex.file)))
   system2("pdflatex", args = list("--enable-write18", "-output-directory temptexoutput", tex.file))
   system2("pdflatex", args = list("--enable-write18", "-output-directory temptexoutput", tex.file))
   pdf.file = paste0("temptexoutput/", gsub(".tex", ".pdf", basename(tex.file), fixed = TRUE))
-  on.exit(unlink(c(rds.file, tex.file)))
+  #on.exit(unlink(c(tex.file)))
   system2("open", args = list(pdf.file))
   return(invisible(NULL))
 }
