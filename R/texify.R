@@ -5,7 +5,8 @@ texify = function(x,
   do.pairwise.test = TRUE,
   testresult.col = "testresult",
   alpha = 0.05,
-  highlighter.pars = NULL
+  highlighter.pars = NULL,
+  testresult.formatter.args = list(positive.only = TRUE)
   ) {
   checkmate::assert_data_frame(x)
   cns = colnames(x)
@@ -44,6 +45,10 @@ texify = function(x,
       dplyr::summarise_(.dots = setNames(summ_methods, summ_names)) %>%
       ungroup()
 
+    # format test results
+    fargs = c(list(x = x[[i]][[paste0('stat.', m.name)]]), testresult.formatter.args)
+    x[[i]][[paste0('stat.', m.name)]] = do.call(format_test_results, fargs)
+
     # highlight
     x[[i]] = highlight(x[[i]], by = split.cols, which = summ_names[1L], order.fun = "max", bg.color = "gray", bg.saturation.max = 15)
 
@@ -54,8 +59,6 @@ texify = function(x,
       widen.cols = summ_names)
     x[[i]][[widen.col]] = NULL
   }
-
-  xxx <<- x[[1]]
 
   return(x)
 }
@@ -73,7 +76,7 @@ to_latex_kable = function(tbl, param.col.names, measure.col.names, reps = 1L, al
   header1 = c(rep(" ", n.params), setNames(rep(n.measures, n.algos * reps), algo.names))
   #cns = c("\\textbf{Type}", "$n$", "$\\mu$", "$\\alpha$", rep(c("\\textbf{mean}", "\\textbf{std}", "\\textbf{stat}"), 2))
   align = rep("r", length(cns))
-  ktbl = kableExtra::kable(tbl, "latex", col.names = cns, align = align, longtable = FALSE, escape = FALSE, booktabs = TRUE, caption = caption) %>%
+  ktbl = kableExtra::kable(tbl, "latex", col.names = cns, align = align, longtable = TRUE, escape = FALSE, booktabs = TRUE, caption = caption) %>%
     kable_styling() %>%
     add_header_above(header1, bold = TRUE)
   return(ktbl)
@@ -102,9 +105,8 @@ do_pairwise_test = function(x, by, split.col, test.col, testresult.col, alpha) {
         a = as.numeric(y.parts[[n1]][[test.col]])
         b = as.numeric(y.parts[[n2]][[test.col]])
         test.result = wilcox.test(a, b, alternative = "greater")
-        if (test.result$p.value < alpha) {
-          alternatives = c(alternatives, n2)
-        }
+        direction = if (test.result$p.value < alpha) "-" else "+"
+        alternatives = c(alternatives, sprintf("%i%s", n2, direction))
       }
       y.parts[[n1]][[testresult.col]] = rep(BBmisc::collapse(alternatives, sep = ","), nrow(y.parts[[n1]]))
     }
@@ -124,3 +126,4 @@ get_parts = function(x, by) {
   #print(x.parts)
   return(x.parts)
 }
+

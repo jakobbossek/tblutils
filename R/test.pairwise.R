@@ -161,6 +161,8 @@ test.pairwise = function(x,
 
 buildIntervalString = function(x) {
   #x = sort(x)
+  if (length(x) == 0)
+    return("")
   st = ""
   last.pos = -100
   inInterval = FALSE
