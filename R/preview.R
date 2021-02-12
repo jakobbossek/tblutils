@@ -7,7 +7,7 @@ preview = function(...) {
   tbls = list(...)
   brew.file = system.file("report.brew", package = "tblutils")
   if (brew.file == "") {
-    brew.file = "data-raw/report.brew"
+    brew.file = "/Users/bossek/repos/software/r/tblutils/data-raw/report.brew"
   }
   BBmisc::catf("Template file path is '%s'.", brew.file)
   tex.file = tempfile(fileext = ".tex")
