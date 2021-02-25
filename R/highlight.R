@@ -37,7 +37,7 @@ highlight = function(x,
   checkmate::assertCharacter(by)
 
   rankinv = function(x) {
-    tmp = rank(x)
+    tmp = rank(x, ties.method = "first")
     max(tmp) - tmp + 1L
   }
 
@@ -105,13 +105,13 @@ highlight = function(x,
 #' @return [\code{character}] Modified \code{values} vector.
 #' @export
 baseLaTeXHighlighter = function(values, ordering, n.highlight = 1,
-  bg.color = "gray", bg.saturation.max = 80, bg.saturation.min = 20) {
+  bg.color = "gray", bg.saturation.max = 80, bg.saturation.min = 20, digits = 2L) {
   n.values = length(values)
   # transform to nicely formated characters
-  values = sprintf("%.2f", values)
+  values = sprintf(paste0("%.", digits, "f"), values)
 
   # highlight best value in bold
-  max.val.idx = which(ordering == 1L)
+  max.val.idx = which(ordering == min(ordering))
   values[max.val.idx] = sprintf("\\textbf{%s}", values[max.val.idx])
 
   # Now for the cellcolors

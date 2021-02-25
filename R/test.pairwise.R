@@ -1,4 +1,3 @@
-#FIXME: this is a very ugly implementation
 #' @title Appnds formatted results of pairwise tests to data frame
 #'
 #' @description Split by some columns, further split by \dQuote{split.col},

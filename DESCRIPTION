@@ -9,6 +9,7 @@ Imports:
   BBmisc,
   checkmate,
   reshape2,
+  dplyr,
   brew
 Suggests:
   testthat
