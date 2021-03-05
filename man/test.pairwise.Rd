@@ -5,8 +5,9 @@
 \title{Appnds formatted results of pairwise tests to data frame}
 \usage{
 test.pairwise(x, by, split.col, value.col, testresult.col,
-  show.positive.only, show.numbers.only, colors = "black",
-  alpha = 0.05, test.fun = stats::wilcox.test, ...)
+  show.positive.only = FALSE, show.numbers.only = FALSE,
+  colors = "black", show.intervals = FALSE, alpha = 0.05,
+  test.fun = stats::wilcox.test, ...)
 }
 \arguments{
 \item{x}{[\code{data.frame}]\cr
@@ -40,6 +41,11 @@ Vector of colors used to highlight test results. If one color is passed it
 is simply repeated k times where k is the number of algorithms. Otherwise
 the k-th color is used for latex output if the zero hypothesis is rejected
 for this algorithm.}
+
+\item{show.intervals}{[\code{logical(1)}]\cr
+Show results in intervals when possible and not comma-seperated?
+This might lead to narrower columns sometimes.
+Default is \code{FALSE}.}
 
 \item{alpha}{[\code{numeric(1)}]\cr
 Significance level.

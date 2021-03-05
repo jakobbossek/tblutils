@@ -4,8 +4,8 @@
 \alias{highlight}
 \title{Highlight cells in data frame}
 \usage{
-highlight(x, by, which, order.fun = base::rank, highlight.fun,
-  order.fun.args = list(), ...)
+highlight(x, by, which, order.fun = "min",
+  highlight.fun = tblutils::baseLaTeXHighlighter, ...)
 }
 \arguments{
 \item{x}{[\code{data.frame}]\cr
@@ -20,19 +20,17 @@ Column name of the column which contains the values we want
 to highlight.}
 
 \item{order.fun}{[\code{function(x, ...)}]\cr
-Function used to determine numeric ordering of the values \code{x[[which]]}.
-This function needs to return an integer vector of the same length
-as the input vector.
-Semantic: the lower an ordering value the better.}
+#FIXME: either function or character(1)
+  Function used to determine numeric ordering of the values \code{x[[which]]}.
+  This function needs to return an integer vector of the same length
+  as the input vector.
+  Semantic: the lower an ordering value the better.}
 
 \item{highlight.fun}{[\code{function}]\cr
   The function that does the highlight magic. It expects at least
 .  a vector of numeric values \code{values} and a vector of corresponding order
   values \code{ordering}.
   See \code{\link{baseLaTeXHighlighter}} for a flexible highlighter function.}
-
-\item{order.fun.args}{[\code{list}]\cr
-List of arguments passed down to \code{order.fun}.}
 
 \item{...}{[any]\cr
 Further parameters passed down to \code{highlight.fun}.}

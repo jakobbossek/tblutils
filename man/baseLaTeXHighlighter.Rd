@@ -5,7 +5,8 @@
 \title{Base LaTeX highlighter}
 \usage{
 baseLaTeXHighlighter(values, ordering, n.highlight = 1,
-  bg.color = "gray", bg.saturation.max = 80, bg.saturation.min = 20)
+  bg.color = "gray", bg.saturation.max = 80, bg.saturation.min = 20,
+  digits = 2L)
 }
 \arguments{
 \item{values}{[\code{numeric}]\cr

@@ -33,7 +33,7 @@
 convergence_plot = function(
   tbl,
   x, y,
-  color, linetype = color, shape = NULL,
+  color = NULL, linetype = color, shape = NULL,
   xlab = x, ylab = y,
   vlines.at = NULL,
   hlines.at = NULL,
@@ -52,7 +52,16 @@ convergence_plot = function(
   checkmate::assert_string(ylab)
   checkmate::assert_numeric(hlines.at, null.ok = TRUE)
   checkmate::assert_numeric(vlines.at, null.ok = TRUE)
-  checkmate::assert_number(x.logscale.base, lower = 2)
+  checkmate::assert_number(x.logscale.base, lower = 2, null.ok = TRUE)
+
+  if (!is.null(color))
+    tbl[[color]] = as.factor(tbl[[color]])
+
+  if (!is.null(linetype))
+    tbl[[linetype]] = as.factor(tbl[[linetype]])
+
+  if (!is.null(shape))
+    tbl[[shape]] = as.factor(tbl[[shape]])
 
   g = ggplot2::ggplot(tbl, aes_string(x = x, y = y, color = color, linetype = linetype, shape = shape, group = color))
   if (!is.null(hlines.at))
@@ -74,7 +83,7 @@ convergence_plot = function(
 
 scale_x_lognice = function(base = 10) {
   #FIXME: base not used
-  ggplot2::scale_x_log10(breaks = trans_breaks(paste0("log", base), function(x) base^x), labels = trans_format("log10", math_format(10^.x)))
+  ggplot2::scale_x_log10(breaks = scales::trans_breaks(paste0("log", base), function(x) base^x), labels = scales::trans_format("log10", scales::math_format(10^.x)))
 }
 
 theme_jboss = function(

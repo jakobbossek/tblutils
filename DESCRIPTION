@@ -10,7 +10,8 @@ Imports:
   checkmate,
   reshape2,
   dplyr,
-  brew
+  brew,
+  scales
 Suggests:
   testthat
 License: GPL-2 | file LICENSE
