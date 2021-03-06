@@ -2,6 +2,7 @@
 
 export(baseLaTeXHighlighter)
 export(convergence_plot)
+export(df_split_col)
 export(format_test_results)
 export(highlight)
 export(import_trajectory)
